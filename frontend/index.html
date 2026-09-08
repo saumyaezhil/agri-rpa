@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agricultural e-Governance</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f5;
+            color: #1f2933;
+        }
+
+        header {
+            background: #245c3c;
+            color: white;
+            padding: 28px 8%;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 7px 0 0;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #245c3c;
+        }
+
+        h3 {
+            margin-top: 28px;
+            color: #374151;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd3d0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        input[type="file"] {
+            padding: 9px;
+            background: #fafafa;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 13px 22px;
+            border: none;
+            border-radius: 6px;
+            background: #245c3c;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #17452c;
+        }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #eef2f7;
+        }
+
+        .success {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #eaf6ee;
+            border-left: 5px solid #245c3c;
+        }
+
+        .warning {
+            background: #fff7e6;
+            border-left: 5px solid #d97706;
+        }
+
+        .application-id {
+            font-size: 24px;
+            font-weight: bold;
+            color: #245c3c;
+        }
+
+        .score {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f4f7f5;
+            border-radius: 7px;
+        }
+    </style>
+</head>
+
+
+<body>
+
+<header>
+    <h1>Agricultural e-Governance</h1>
+    <p>Digital Agricultural Certificate Services</p>
+</header>
+
+
+<div class="container">
+
+    <!-- APPLICATION -->
+
+    <div class="card">
+
+        <h2>Apply for a Certificate</h2>
+
+        <p>
+            Submit your agricultural service request
+            and supporting documents for automated verification.
+        </p>
+
+
+        <form id="applicationForm">
+
+            <label>Farmer Name</label>
+
+            <input
+                id="farmer_name"
+                name="farmer_name"
+                type="text"
+                placeholder="Enter full name"
+                required
+            >
+
+
+            <label>Mobile Number</label>
+
+            <input
+                id="mobile"
+                name="mobile"
+                type="text"
+                placeholder="Enter mobile number"
+                required
+            >
+
+
+            <label>Service</label>
+
+            <select
+                id="service_type"
+                name="service_type"
+            >
+
+                <option value="land_certificate">
+                    Land Certificate
+                </option>
+
+                <option value="soil_certificate">
+                    Soil Certificate
+                </option>
+
+                <option value="crop_damage">
+                    Crop Damage Certificate
+                </option>
+
+            </select>
+
+
+            <label>Survey Number</label>
+
+            <input
+                id="survey_number"
+                name="survey_number"
+                type="text"
+                placeholder="Example: 124/3A"
+                required
+            >
+
+
+            <label>Village</label>
+
+            <input
+                id="village"
+                name="village"
+                type="text"
+                placeholder="Enter village"
+                required
+            >
+
+
+            <h3>Supporting Documents</h3>
+
+
+            <label>Identity Proof</label>
+
+            <input
+                id="identity_proof"
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg"
+                required
+            >
+
+
+            <label>Land Record</label>
+
+            <input
+                id="land_record"
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg"
+                required
+            >
+
+
+            <label>Address Proof</label>
+
+            <input
+                id="address_proof"
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg"
+                required
+            >
+
+
+            <button type="submit">
+                Submit & Verify Application
+            </button>
+
+        </form>
+
+
+        <div
+            id="message"
+            class="message hidden"
+        ></div>
+
+
+        <div
+            id="applicationResult"
+            class="success hidden"
+        >
+
+            <h3>Application Created</h3>
+
+            <p>Your Application ID:</p>
+
+            <div
+                id="applicationId"
+                class="application-id"
+            ></div>
+
+            <p>
+                Documents have been submitted for verification.
+            </p>
+
+        </div>
+
+
+        <div
+            id="verificationResult"
+            class="success hidden"
+        >
+
+            <h3>Verification Result</h3>
+
+            <p>Verification Score:</p>
+
+            <div
+                id="score"
+                class="score"
+            ></div>
+
+            <p>
+                Decision:
+                <strong id="decision"></strong>
+            </p>
+
+            <p>
+                Status:
+                <strong id="status"></strong>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATUS TRACKING -->
+
+    <div class="card">
+
+        <h2>Track Application</h2>
+
+        <p>
+            Enter your application ID to check its status.
+        </p>
+
+
+        <input
+            id="trackingId"
+            type="text"
+            placeholder="Example: AGR-00001"
+        >
+
+
+        <button
+            onclick="trackApplication()"
+        >
+            Check Status
+        </button>
+
+
+        <div
+            id="trackingResult"
+            class="status-box hidden"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API = "http://127.0.0.1:8000";
+
+
+/* =====================================================
+   CREATE APPLICATION
+===================================================== */
+
+document
+    .getElementById("applicationForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        showMessage("Creating application...");
+
+
+        const formData = {
+
+            farmer_name:
+                document.getElementById("farmer_name").value,
+
+            mobile:
+                document.getElementById("mobile").value,
+
+            service_type:
+                document.getElementById("service_type").value,
+
+            survey_number:
+                document.getElementById("survey_number").value,
+
+            village:
+                document.getElementById("village").value
+        };
+
+
+        try {
+
+            const response = await fetch(
+                `${API}/api/applications`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(formData)
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to create application"
+                );
+            }
+
+
+            const application =
+                await response.json();
+
+
+            document
+                .getElementById("applicationId")
+                .textContent =
+                application.application_id;
+
+
+            document
+                .getElementById("applicationResult")
+                .classList.remove("hidden");
+
+
+            showMessage(
+                "Application created. Uploading documents..."
+            );
+
+
+            await uploadDocument(
+                application.application_id,
+                "identity_proof",
+                document.getElementById("identity_proof").files[0]
+            );
+
+
+            await uploadDocument(
+                application.application_id,
+                "land_record",
+                document.getElementById("land_record").files[0]
+            );
+
+
+            await uploadDocument(
+                application.application_id,
+                "address_proof",
+                document.getElementById("address_proof").files[0]
+            );
+
+
+            showMessage(
+                "Documents uploaded. Running verification..."
+            );
+
+
+            await verifyApplication(
+                application.application_id
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "Error: " + error.message
+            );
+        }
+
+    });
+
+
+/* =====================================================
+   UPLOAD DOCUMENT
+===================================================== */
+
+async function uploadDocument(
+    applicationId,
+    documentType,
+    file
+) {
+
+    if (!file) {
+        throw new Error(
+            "Missing " + documentType
+        );
+    }
+
+
+    const data = new FormData();
+
+    data.append(
+        "file",
+        file
+    );
+
+
+    const response = await fetch(
+        `${API}/api/applications/${applicationId}/documents?document_type=${documentType}`,
+        {
+            method: "POST",
+            body: data
+        }
+    );
+
+
+    if (!response.ok) {
+
+        const error =
+            await response.text();
+
+        throw new Error(
+            "Document upload failed: "
+            + error
+        );
+    }
+
+
+    return await response.json();
+}
+
+
+/* =====================================================
+   VERIFY APPLICATION
+===================================================== */
+
+async function verifyApplication(
+    applicationId
+) {
+
+    const response = await fetch(
+        `${API}/api/applications/${applicationId}/verify`,
+        {
+            method: "POST"
+        }
+    );
+
+
+    if (!response.ok) {
+
+        const error =
+            await response.text();
+
+        throw new Error(
+            "Verification failed: "
+            + error
+        );
+    }
+
+
+    const result =
+        await response.json();
+
+
+    document
+        .getElementById("score")
+        .textContent =
+        result.verification_score + "%";
+
+
+    document
+        .getElementById("decision")
+        .textContent =
+        result.decision;
+
+
+    document
+        .getElementById("status")
+        .textContent =
+        result.status;
+
+
+    document
+        .getElementById("verificationResult")
+        .classList.remove("hidden");
+
+
+    showMessage(
+        "Verification completed."
+    );
+}
+
+
+/* =====================================================
+   TRACK APPLICATION
+===================================================== */
+
+async function trackApplication() {
+
+    const applicationId =
+        document
+            .getElementById("trackingId")
+            .value
+            .trim();
+
+
+    if (!applicationId) {
+
+        alert(
+            "Enter an application ID."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `${API}/api/status/${applicationId}`
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Application not found"
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        document
+            .getElementById("trackingResult")
+            .innerHTML = `
+
+                <strong>
+                    Application:
+                </strong>
+                ${data.application_id}
+
+                <br><br>
+
+                <strong>
+                    Farmer:
+                </strong>
+                ${data.farmer_name}
+
+                <br><br>
+
+                <strong>
+                    Status:
+                </strong>
+                ${data.status}
+
+                <br><br>
+
+                <strong>
+                    Verification Score:
+                </strong>
+                ${data.verification_score}%
+
+                <br><br>
+
+                <strong>
+                    Government ID:
+                </strong>
+                ${data.government_application_id || "Not assigned yet"}
+
+            `;
+
+
+        document
+            .getElementById("trackingResult")
+            .classList.remove("hidden");
+
+    }
+
+    catch (error) {
+
+        document
+            .getElementById("trackingResult")
+            .innerHTML =
+            `<strong>${error.message}</strong>`;
+
+        document
+            .getElementById("trackingResult")
+            .classList.remove("hidden");
+    }
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(text) {
+
+    const element =
+        document.getElementById("message");
+
+    element.textContent = text;
+
+    element.classList.remove("hidden");
+}
+
+</script>
+
+</body>
+
+</html>
