@@ -1,16 +1,17 @@
 import os
-import re
-
 import cv2
 import fitz
 import pytesseract
 import numpy as np
+
 from PIL import Image
+from pytesseract import Output
 
 
 def preprocess_image(image):
     """
-    Convert image to grayscale and improve OCR readability.
+    Convert image to grayscale and apply
+    thresholding to improve OCR quality.
     """
 
     image_array = np.array(image)
@@ -20,7 +21,6 @@ def preprocess_image(image):
         cv2.COLOR_RGB2GRAY
     )
 
-    # Improve contrast
     gray = cv2.threshold(
         gray,
         0,
@@ -33,26 +33,64 @@ def preprocess_image(image):
 
 def ocr_image(image):
     """
-    Run Tesseract OCR on an image.
+    Run OCR and calculate an actual confidence
+    score from Tesseract.
     """
 
     processed = preprocess_image(image)
 
+    # Extract text
     text = pytesseract.image_to_string(
         processed
     )
 
-    return text
+    # Extract word-level confidence values
+    data = pytesseract.image_to_data(
+        processed,
+        output_type=Output.DICT
+    )
+
+    confidence_values = []
+
+    for confidence in data["conf"]:
+
+        try:
+
+            value = float(confidence)
+
+            if value >= 0:
+                confidence_values.append(value)
+
+        except (ValueError, TypeError):
+            continue
+
+    if confidence_values:
+
+        confidence = (
+            sum(confidence_values)
+            / len(confidence_values)
+        )
+
+        confidence = confidence / 100.0
+
+    else:
+
+        confidence = 0.0
+
+    return text, confidence
 
 
 def ocr_pdf(filepath):
     """
-    Convert PDF pages to images and run OCR.
+    Convert each PDF page into an image,
+    run OCR and calculate the average
+    confidence across pages.
     """
 
     document = fitz.open(filepath)
 
     all_text = []
+    all_confidences = []
 
     for page in document:
 
@@ -62,33 +100,57 @@ def ocr_pdf(filepath):
 
         image = Image.frombytes(
             "RGB",
-            [
-                pixmap.width,
-                pixmap.height
-            ],
+            [pixmap.width, pixmap.height],
             pixmap.samples
         )
 
-        text = ocr_image(image)
+        text, confidence = ocr_image(
+            image
+        )
 
         all_text.append(text)
+        all_confidences.append(
+            confidence
+        )
 
     document.close()
 
-    return "\n".join(all_text)
+    if all_confidences:
+
+        average_confidence = (
+            sum(all_confidences)
+            / len(all_confidences)
+        )
+
+    else:
+
+        average_confidence = 0.0
+
+    return (
+        "\n".join(all_text),
+        average_confidence
+    )
 
 
 def extract_text(filepath):
     """
-    Run OCR depending on file type.
+    OCR a PDF or image.
+
+    Returns:
+        text
+        confidence
     """
 
-    extension = os.path.splitext(
-        filepath
-    )[1].lower()
+    extension = (
+        os.path.splitext(filepath)[1]
+        .lower()
+    )
 
     if extension == ".pdf":
-        return ocr_pdf(filepath)
+
+        return ocr_pdf(
+            filepath
+        )
 
     if extension in [
         ".png",
@@ -96,9 +158,13 @@ def extract_text(filepath):
         ".jpeg"
     ]:
 
-        image = Image.open(filepath)
+        image = Image.open(
+            filepath
+        )
 
-        return ocr_image(image)
+        return ocr_image(
+            image
+        )
 
     raise ValueError(
         "Unsupported file format"

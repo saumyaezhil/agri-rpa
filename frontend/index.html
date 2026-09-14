@@ -1,724 +1,2164 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Agricultural e-Governance</title>
+    <title>Agri-RPA | Digital Agricultural Services</title>
 
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --cream: #f7f1e5;
+            --cream-dark: #eee4d2;
+            --orange: #f4511e;
+            --orange-dark: #d94112;
+            --green: #355b2b;
+            --green-light: #e3ead3;
+            --text: #171717;
+            --muted: #68645d;
+            --white: #fffdf8;
+            --line: #ded6c8;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7f5;
-            color: #1f2933;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.5;
         }
 
-        header {
-            background: #245c3c;
-            color: white;
-            padding: 28px 8%;
+        button,
+        input,
+        select {
+            font: inherit;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 28px;
+        button {
+            cursor: pointer;
         }
 
-        header p {
-            margin: 7px 0 0;
-            opacity: 0.9;
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            background: rgba(247,241,229,0.96);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
-        .container {
-            max-width: 850px;
-            margin: 35px auto;
-            padding: 0 20px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
-        .card {
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 50% 10px 50% 10px;
+            background: var(--green);
+            transform: rotate(-20deg);
+            position: relative;
+        }
+
+        .logo-mark::after {
+            content: "";
+            position: absolute;
+            width: 17px;
+            height: 2px;
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-            margin-bottom: 25px;
+            top: 17px;
+            left: 7px;
+            transform: rotate(-35deg);
         }
 
-        h2 {
-            margin-top: 0;
-            color: #245c3c;
+        .nav-links {
+            display: flex;
+            gap: 34px;
+            align-items: center;
         }
 
-        h3 {
-            margin-top: 28px;
-            color: #374151;
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: var(--orange);
+        }
+
+        .track-btn {
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .track-btn:hover {
+            background: var(--orange-dark);
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            max-width: 1320px;
+            margin: auto;
+            padding: 70px 5% 80px;
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            color: var(--orange);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(55px, 7vw, 96px);
+            line-height: 0.88;
+            letter-spacing: -5px;
+            max-width: 700px;
+            margin-bottom: 28px;
+        }
+
+        .hero-text {
+            max-width: 470px;
+            font-size: 17px;
+            color: var(--muted);
+            margin-bottom: 30px;
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 17px 23px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .primary-btn:hover {
+            background: var(--orange-dark);
+            transform: translateY(-1px);
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 35px;
+            margin-top: 42px;
+        }
+
+        .hero-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .feature-icon {
+            width: 38px;
+            height: 38px;
+            background: #e9dfbd;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: var(--green);
+            font-size: 18px;
+        }
+
+        .hero-image {
+            height: 540px;
+            border-radius: 0 80px 0 80px;
+            overflow: hidden;
+            position: relative;
+            background:
+                linear-gradient(135deg, rgba(53,91,43,.15), rgba(244,81,30,.15)),
+                url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85")
+                center / cover;
+        }
+
+        .hero-card {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            background: #dfe7c7;
+            width: 245px;
+            padding: 28px;
+        }
+
+        .hero-card strong {
+            font-size: 17px;
+            display: block;
+            line-height: 1.2;
+            margin-bottom: 18px;
+        }
+
+        .hero-card-line {
+            width: 45px;
+            height: 2px;
+            background: var(--green);
+        }
+
+        /* =========================
+           PROCESS
+        ========================= */
+
+        .section {
+            max-width: 1320px;
+            margin: auto;
+            padding: 80px 5%;
+        }
+
+        .section-heading {
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto 50px;
+        }
+
+        .section-heading h2 {
+            font-size: clamp(38px, 5vw, 60px);
+            line-height: 0.95;
+            letter-spacing: -3px;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            background: var(--line);
+            border: 1px solid var(--line);
+        }
+
+        .process-card {
+            background: var(--cream);
+            padding: 35px 28px;
+            min-height: 220px;
+        }
+
+        .process-number {
+            color: var(--orange);
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 30px;
+        }
+
+        .process-card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .process-card p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* =========================
+           APPLICATION
+        ========================= */
+
+        .application-section {
+            background: var(--white);
+            padding: 80px 5%;
+        }
+
+        .application-wrapper {
+            max-width: 1320px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 55px;
+        }
+
+        .application-sidebar {
+            background: var(--cream);
+            padding: 35px 28px;
+            border-radius: 30px;
+        }
+
+        .application-sidebar h3 {
+            font-size: 22px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            gap: 14px;
+            position: relative;
+            padding-bottom: 34px;
+        }
+
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            left: 17px;
+            top: 37px;
+            width: 1px;
+            height: 48px;
+            background: #aeb89b;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+            border-radius: 50%;
+            background: #dfe7c7;
+            color: var(--green);
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .step.active .step-number {
+            background: var(--green);
+            color: white;
+        }
+
+        .step strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .step span {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .application-content {
+            padding-top: 5px;
+        }
+
+        .application-content h2 {
+            font-size: clamp(36px, 4vw, 55px);
+            letter-spacing: -3px;
+            line-height: 0.95;
+            margin-bottom: 12px;
+        }
+
+        .application-subtitle {
+            color: var(--muted);
+            margin-bottom: 35px;
+        }
+
+        /* FORM */
+
+        .form-card {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 35px;
+            background: var(--white);
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .form-title-icon {
+            width: 38px;
+            height: 38px;
+            background: #eee4c8;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+        }
+
+        .progress-area {
+            width: 180px;
+        }
+
+        .progress-label {
+            font-size: 11px;
+            text-align: right;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .progress {
+            height: 7px;
+            border-radius: 20px;
+            background: #e8e6e0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 25%;
+            height: 100%;
+            background: var(--green);
+            transition: width .3s ease;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
         }
 
         label {
-            display: block;
-            margin-top: 18px;
-            margin-bottom: 7px;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         input,
         select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccd3d0;
-            border-radius: 6px;
-            font-size: 15px;
+            padding: 15px 14px;
+            border: 1px solid #d7d4cc;
+            border-radius: 5px;
+            background: #fff;
+            outline: none;
+            color: var(--text);
         }
 
-        input[type="file"] {
-            padding: 9px;
-            background: #fafafa;
+        input:focus,
+        select:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(53,91,43,.08);
         }
 
-        button {
-            margin-top: 25px;
-            padding: 13px 22px;
-            border: none;
-            border-radius: 6px;
-            background: #245c3c;
+        .form-action {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn,
+        .submit-btn {
+            background: var(--green);
             color: white;
-            font-size: 15px;
-            cursor: pointer;
+            border: none;
+            padding: 16px 26px;
+            border-radius: 5px;
+            font-weight: 700;
         }
 
-        button:hover {
-            background: #17452c;
+        .next-btn:hover,
+        .submit-btn:hover {
+            background: #294821;
         }
 
-        button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
+        /* =========================
+           DOCUMENTS
+        ========================= */
 
-        .message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            background: #eef2f7;
-        }
-
-        .success {
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #eaf6ee;
-            border-left: 5px solid #245c3c;
-        }
-
-        .warning {
-            background: #fff7e6;
-            border-left: 5px solid #d97706;
-        }
-
-        .application-id {
-            font-size: 24px;
-            font-weight: bold;
-            color: #245c3c;
-        }
-
-        .score {
-            font-size: 30px;
-            font-weight: bold;
-        }
-
-        .hidden {
+        #documentStep {
             display: none;
         }
 
-        .status-box {
-            margin-top: 15px;
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .document-card {
+            border: 1px dashed #bbb5a8;
+            border-radius: 14px;
+            padding: 25px;
+            background: #fcfaf4;
+            transition: .2s;
+        }
+
+        .document-card:hover {
+            border-color: var(--green);
+            transform: translateY(-2px);
+        }
+
+        .document-icon {
+            width: 48px;
+            height: 48px;
+            background: #e8edd9;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: var(--green);
+            margin-bottom: 18px;
+            font-size: 20px;
+        }
+
+        .document-card h4 {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .document-card p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-label {
+            display: block;
+            border: 1px solid var(--green);
+            color: var(--green);
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .upload-label:hover {
+            background: var(--green);
+            color: white;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 10px;
+            color: var(--green);
+            word-break: break-word;
+        }
+
+        /* =========================
+           VERIFICATION
+        ========================= */
+
+        #resultSection {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            border-radius: 20px;
+            padding: 35px;
+            background: var(--green);
+            color: white;
+        }
+
+        .result-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .result-top h3 {
+            font-size: 25px;
+        }
+
+        .score {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 7px solid #c9d7ad;
+            display: grid;
+            place-items: center;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .decision {
+            background: #dfe7c7;
+            color: var(--green);
+            padding: 12px 18px;
+            display: inline-block;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-top: 12px;
+        }
+
+        .checks {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .check {
+            background: rgba(255,255,255,.08);
             padding: 15px;
-            background: #f4f7f5;
-            border-radius: 7px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status-section {
+            padding: 90px 5%;
+        }
+
+        .status-box {
+            max-width: 850px;
+            margin: auto;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 35px;
+        }
+
+        .status-search {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .status-search input {
+            flex: 1;
+        }
+
+        .status-search button {
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 5px;
+            font-weight: 700;
+        }
+
+        #statusResult {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #e6edd9;
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* =========================
+           MISSION
+        ========================= */
+
+        .mission {
+            max-width: 1320px;
+            margin: auto;
+            padding: 30px 5% 100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .mission-image {
+            min-height: 440px;
+            border-radius: 30px 0 30px 0;
+            background:
+                linear-gradient(rgba(30,50,20,.15), rgba(30,50,20,.15)),
+                url("https://images.unsplash.com/photo-1492496913980-501348b61469?auto=format&fit=crop&w=1000&q=85")
+                center / cover;
+            position: relative;
+        }
+
+        .mission-image-text {
+            position: absolute;
+            bottom: 35px;
+            left: 35px;
+            color: white;
+            max-width: 350px;
+        }
+
+        .mission-image-text h3 {
+            font-size: 38px;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .mission-content h2 {
+            font-size: 50px;
+            line-height: .95;
+            letter-spacing: -3px;
+            margin-bottom: 20px;
+        }
+
+        .mission-content > p {
+            color: var(--muted);
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .benefit {
+            display: flex;
+            gap: 12px;
+        }
+
+        .benefit-icon {
+            min-width: 42px;
+            height: 42px;
+            background: #e9dfbd;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+        }
+
+        .benefit strong {
+            font-size: 13px;
+        }
+
+        .benefit p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            background: var(--green);
+            color: white;
+            padding: 45px 5%;
+        }
+
+        .footer-inner {
+            max-width: 1320px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer p {
+            font-size: 11px;
+            opacity: .75;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+            .hero,
+            .mission,
+            .application-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-image {
+                height: 420px;
+            }
+
+            .process-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .application-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 45px;
+            }
+
+            .hero h1 {
+                letter-spacing: -3px;
+            }
+
+            .hero-features {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .process-grid,
+            .form-grid,
+            .checks,
+            .benefits {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .form-card {
+                padding: 22px;
+            }
+
+            .form-header {
+                align-items: flex-start;
+                gap: 15px;
+                flex-direction: column;
+            }
+
+            .progress-area {
+                width: 100%;
+            }
+
+            .status-search {
+                flex-direction: column;
+            }
+
+            .status-search button {
+                padding: 14px;
+            }
         }
     </style>
 </head>
 
-
 <body>
 
-<header>
-    <h1>Agricultural e-Governance</h1>
-    <p>Digital Agricultural Certificate Services</p>
-</header>
+<!-- =========================
+     NAVIGATION
+========================= -->
 
+<nav class="navbar">
 
-<div class="container">
-
-    <!-- APPLICATION -->
-
-    <div class="card">
-
-        <h2>Apply for a Certificate</h2>
-
-        <p>
-            Submit your agricultural service request
-            and supporting documents for automated verification.
-        </p>
-
-
-        <form id="applicationForm">
-
-            <label>Farmer Name</label>
-
-            <input
-                id="farmer_name"
-                name="farmer_name"
-                type="text"
-                placeholder="Enter full name"
-                required
-            >
-
-
-            <label>Mobile Number</label>
-
-            <input
-                id="mobile"
-                name="mobile"
-                type="text"
-                placeholder="Enter mobile number"
-                required
-            >
-
-
-            <label>Service</label>
-
-            <select
-                id="service_type"
-                name="service_type"
-            >
-
-                <option value="land_certificate">
-                    Land Certificate
-                </option>
-
-                <option value="soil_certificate">
-                    Soil Certificate
-                </option>
-
-                <option value="crop_damage">
-                    Crop Damage Certificate
-                </option>
-
-            </select>
-
-
-            <label>Survey Number</label>
-
-            <input
-                id="survey_number"
-                name="survey_number"
-                type="text"
-                placeholder="Example: 124/3A"
-                required
-            >
-
-
-            <label>Village</label>
-
-            <input
-                id="village"
-                name="village"
-                type="text"
-                placeholder="Enter village"
-                required
-            >
-
-
-            <h3>Supporting Documents</h3>
-
-
-            <label>Identity Proof</label>
-
-            <input
-                id="identity_proof"
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg"
-                required
-            >
-
-
-            <label>Land Record</label>
-
-            <input
-                id="land_record"
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg"
-                required
-            >
-
-
-            <label>Address Proof</label>
-
-            <input
-                id="address_proof"
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg"
-                required
-            >
-
-
-            <button type="submit">
-                Submit & Verify Application
-            </button>
-
-        </form>
-
-
-        <div
-            id="message"
-            class="message hidden"
-        ></div>
-
-
-        <div
-            id="applicationResult"
-            class="success hidden"
-        >
-
-            <h3>Application Created</h3>
-
-            <p>Your Application ID:</p>
-
-            <div
-                id="applicationId"
-                class="application-id"
-            ></div>
-
-            <p>
-                Documents have been submitted for verification.
-            </p>
-
-        </div>
-
-
-        <div
-            id="verificationResult"
-            class="success hidden"
-        >
-
-            <h3>Verification Result</h3>
-
-            <p>Verification Score:</p>
-
-            <div
-                id="score"
-                class="score"
-            ></div>
-
-            <p>
-                Decision:
-                <strong id="decision"></strong>
-            </p>
-
-            <p>
-                Status:
-                <strong id="status"></strong>
-            </p>
-
-        </div>
-
+    <div class="logo">
+        <div class="logo-mark"></div>
+        Agri-RPA
     </div>
 
+    <div class="nav-links">
+        <a href="#home">HOME</a>
+        <a href="#process">HOW IT WORKS</a>
+        <a href="#apply">SERVICES</a>
+        <a href="#mission">ABOUT</a>
+    </div>
 
-    <!-- STATUS TRACKING -->
+    <button class="track-btn" onclick="scrollToStatus()">
+        TRACK APPLICATION →
+    </button>
 
-    <div class="card">
+</nav>
 
-        <h2>Track Application</h2>
 
-        <p>
-            Enter your application ID to check its status.
+<!-- =========================
+     HERO
+========================= -->
+
+<section class="hero" id="home">
+
+    <div>
+
+        <div class="eyebrow">
+            DIGITAL AGRICULTURAL SERVICES
+        </div>
+
+        <h1>
+            FROM FIELDS<br>
+            TO FUTURES
+        </h1>
+
+        <p class="hero-text">
+            A smarter, faster and simpler way for farmers
+            to access agricultural government services.
         </p>
 
-
-        <input
-            id="trackingId"
-            type="text"
-            placeholder="Example: AGR-00001"
-        >
-
-
-        <button
-            onclick="trackApplication()"
-        >
-            Check Status
+        <button class="primary-btn" onclick="startApplication()">
+            APPLY FOR A CERTIFICATE
+            <span>→</span>
         </button>
 
+        <div class="hero-features">
 
-        <div
-            id="trackingResult"
-            class="status-box hidden"
-        ></div>
+            <div class="hero-feature">
+                <div class="feature-icon">⚡</div>
+                <span>Faster<br>Processing</span>
+            </div>
+
+            <div class="hero-feature">
+                <div class="feature-icon">✓</div>
+                <span>Secure &<br>Reliable</span>
+            </div>
+
+            <div class="hero-feature">
+                <div class="feature-icon">⌁</div>
+                <span>Farmer<br>Friendly</span>
+            </div>
+
+        </div>
 
     </div>
 
-</div>
+
+    <div class="hero-image">
+
+        <div class="hero-card">
+
+            <strong>
+                Digital Services<br>
+                for a Greener<br>
+                Tomorrow
+            </strong>
+
+            <div class="hero-card-line"></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     HOW IT WORKS
+========================= -->
+
+<section class="section" id="process">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">
+            HOW IT WORKS
+        </div>
+
+        <h2>
+            FROM FARMER<br>
+            TO APPROVAL
+        </h2>
+
+    </div>
+
+
+    <div class="process-grid">
+
+        <div class="process-card">
+            <div class="process-number">01</div>
+            <h3>APPLY</h3>
+            <p>
+                Enter your basic information and
+                select the agricultural service you need.
+            </p>
+        </div>
+
+        <div class="process-card">
+            <div class="process-number">02</div>
+            <h3>UPLOAD</h3>
+            <p>
+                Submit the required agricultural
+                documents digitally.
+            </p>
+        </div>
+
+        <div class="process-card">
+            <div class="process-number">03</div>
+            <h3>VERIFY</h3>
+            <p>
+                AI-powered OCR extracts and validates
+                information from your documents.
+            </p>
+        </div>
+
+        <div class="process-card">
+            <div class="process-number">04</div>
+            <h3>PROCESS</h3>
+            <p>
+                Verified applications can be processed
+                automatically through RPA.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     APPLICATION
+========================= -->
+
+<section class="application-section" id="apply">
+
+    <div class="application-wrapper">
+
+        <aside class="application-sidebar">
+
+            <h3>
+                Your Application
+            </h3>
+
+            <div class="step active" id="sideStep1">
+                <div class="step-number">01</div>
+                <div>
+                    <strong>Farmer Details</strong>
+                    <span>Provide your basic information</span>
+                </div>
+            </div>
+
+            <div class="step" id="sideStep2">
+                <div class="step-number">02</div>
+                <div>
+                    <strong>Documents</strong>
+                    <span>Submit required documents</span>
+                </div>
+            </div>
+
+            <div class="step" id="sideStep3">
+                <div class="step-number">03</div>
+                <div>
+                    <strong>Verification</strong>
+                    <span>AI-powered document verification</span>
+                </div>
+            </div>
+
+            <div class="step" id="sideStep4">
+                <div class="step-number">04</div>
+                <div>
+                    <strong>Application</strong>
+                    <span>Track your application</span>
+                </div>
+            </div>
+
+        </aside>
+
+
+        <main class="application-content">
+
+            <div class="eyebrow">
+                GET STARTED
+            </div>
+
+            <h2>
+                Apply for an<br>
+                Agricultural Certificate
+            </h2>
+
+            <p class="application-subtitle">
+                Fill in your details and upload the required documents
+                to get started.
+            </p>
+
+
+            <!-- STEP 1 -->
+
+            <div class="form-card" id="detailsStep">
+
+                <div class="form-header">
+
+                    <div class="form-title">
+                        <div class="form-title-icon">♙</div>
+                        Farmer Information
+                    </div>
+
+                    <div class="progress-area">
+                        <div class="progress-label">
+                            Step 1 of 4
+                        </div>
+
+                        <div class="progress">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>FULL NAME</label>
+                        <input
+                            id="farmerName"
+                            type="text"
+                            placeholder="Enter your full name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>MOBILE NUMBER</label>
+                        <input
+                            id="mobile"
+                            type="tel"
+                            placeholder="Enter 10 digit mobile number"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>SURVEY NUMBER</label>
+                        <input
+                            id="surveyNumber"
+                            type="text"
+                            placeholder="e.g. 124/3A"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>VILLAGE</label>
+                        <input
+                            id="village"
+                            type="text"
+                            placeholder="Enter your village"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group full">
+                        <label>SERVICE TYPE</label>
+
+                        <select id="serviceType" required>
+
+                            <option value="">
+                                Select agricultural service
+                            </option>
+
+                            <option value="Land Certificate">
+                                Land Certificate
+                            </option>
+
+                            <option value="Land Ownership Verification">
+                                Land Ownership Verification
+                            </option>
+
+                            <option value="Agricultural Subsidy">
+                                Agricultural Subsidy
+                            </option>
+
+                            <option value="Farmer Registration">
+                                Farmer Registration
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-action">
+
+                    <button
+                        class="next-btn"
+                        onclick="goToDocuments()"
+                    >
+                        NEXT: UPLOAD DOCUMENTS →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 2 -->
+
+            <div class="form-card" id="documentStep">
+
+                <div class="form-header">
+
+                    <div class="form-title">
+                        <div class="form-title-icon">▣</div>
+                        Required Documents
+                    </div>
+
+                    <div class="progress-area">
+                        <div class="progress-label">
+                            Step 2 of 4
+                        </div>
+
+                        <div class="progress">
+                            <div
+                                class="progress-bar"
+                                style="width:50%"
+                            ></div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="documents-grid">
+
+                    <div class="document-card">
+
+                        <div class="document-icon">
+                            ID
+                        </div>
+
+                        <h4>
+                            Identity Proof
+                        </h4>
+
+                        <p>
+                            Upload your identity document.
+                        </p>
+
+                        <input
+                            class="file-input"
+                            id="identityFile"
+                            type="file"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onchange="showFileName('identityFile','identityName')"
+                        >
+
+                        <label
+                            class="upload-label"
+                            for="identityFile"
+                        >
+                            CHOOSE FILE
+                        </label>
+
+                        <div
+                            class="file-name"
+                            id="identityName"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="document-card">
+
+                        <div class="document-icon">
+                            LD
+                        </div>
+
+                        <h4>
+                            Land Record
+                        </h4>
+
+                        <p>
+                            Upload your land ownership record.
+                        </p>
+
+                        <input
+                            class="file-input"
+                            id="landFile"
+                            type="file"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onchange="showFileName('landFile','landName')"
+                        >
+
+                        <label
+                            class="upload-label"
+                            for="landFile"
+                        >
+                            CHOOSE FILE
+                        </label>
+
+                        <div
+                            class="file-name"
+                            id="landName"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="document-card">
+
+                        <div class="document-icon">
+                            AD
+                        </div>
+
+                        <h4>
+                            Address Proof
+                        </h4>
+
+                        <p>
+                            Upload a valid address document.
+                        </p>
+
+                        <input
+                            class="file-input"
+                            id="addressFile"
+                            type="file"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onchange="showFileName('addressFile','addressName')"
+                        >
+
+                        <label
+                            class="upload-label"
+                            for="addressFile"
+                        >
+                            CHOOSE FILE
+                        </label>
+
+                        <div
+                            class="file-name"
+                            id="addressName"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-action">
+
+                    <button
+                        class="submit-btn"
+                        onclick="submitApplication()"
+                    >
+                        SUBMIT & VERIFY →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESULT -->
+
+            <div id="resultSection">
+
+                <div class="result-card">
+
+                    <div class="result-top">
+
+                        <div>
+
+                            <div class="eyebrow" style="color:#dfe7c7">
+                                AI DOCUMENT VERIFICATION
+                            </div>
+
+                            <h3 id="resultTitle">
+                                Verification Complete
+                            </h3>
+
+                            <div
+                                class="decision"
+                                id="decision"
+                            >
+                                PROCESSING
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="score"
+                            id="score"
+                        >
+                            --
+                        </div>
+
+                    </div>
+
+
+                    <div class="checks">
+
+                        <div class="check">
+                            ✓ Identity document processed
+                        </div>
+
+                        <div class="check">
+                            ✓ Land record processed
+                        </div>
+
+                        <div class="check">
+                            ✓ Survey number validation
+                        </div>
+
+                        <div class="check">
+                            ✓ Village validation
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     STATUS
+========================= -->
+
+<section class="status-section" id="status">
+
+    <div class="section-heading">
+
+        <div class="eyebrow">
+            APPLICATION TRACKING
+        </div>
+
+        <h2>
+            WHERE IS<br>
+            YOUR APPLICATION?
+        </h2>
+
+    </div>
+
+
+    <div class="status-box">
+
+        <strong>
+            Track your application
+        </strong>
+
+        <p style="color:#68645d;font-size:13px;margin-top:6px;">
+            Enter your Agri-RPA application ID.
+        </p>
+
+
+        <div class="status-search">
+
+            <input
+                id="statusApplicationId"
+                placeholder="e.g. AGR-00001"
+            >
+
+            <button onclick="trackApplication()">
+                TRACK
+            </button>
+
+        </div>
+
+
+        <div id="statusResult">
+
+            <div style="margin-bottom:15px;">
+                <strong id="trackedFarmer"></strong>
+            </div>
+
+            <span
+                class="status-pill"
+                id="trackedStatus"
+            ></span>
+
+            <div style="margin-top:20px;font-size:13px;">
+
+                <p>
+                    Application ID:
+                    <strong id="trackedId"></strong>
+                </p>
+
+                <p style="margin-top:5px;">
+                    Service:
+                    <strong id="trackedService"></strong>
+                </p>
+
+                <p style="margin-top:5px;">
+                    Verification Score:
+                    <strong id="trackedScore"></strong>
+                </p>
+
+                <p style="margin-top:5px;">
+                    Government Application:
+                    <strong id="trackedGovId"></strong>
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     MISSION
+========================= -->
+
+<section class="mission" id="mission">
+
+    <div class="mission-image">
+
+        <div class="mission-image-text">
+
+            <div class="eyebrow" style="color:#e9dfbd">
+                OUR MISSION
+            </div>
+
+            <h3>
+                Empowering<br>
+                Farmers Through<br>
+                Technology
+            </h3>
+
+        </div>
+
+    </div>
+
+
+    <div class="mission-content">
+
+        <div class="eyebrow">
+            WHY AGRI-RPA
+        </div>
+
+        <h2>
+            A Better Way to Access Government Services
+        </h2>
+
+        <p>
+            We combine artificial intelligence and robotic
+            process automation to make agricultural services
+            more accessible, transparent and efficient.
+        </p>
+
+
+        <div class="benefits">
+
+            <div class="benefit">
+
+                <div class="benefit-icon">▣</div>
+
+                <div>
+                    <strong>AI Powered Verification</strong>
+                    <p>
+                        Faster document processing
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="benefit">
+
+                <div class="benefit-icon">⚙</div>
+
+                <div>
+                    <strong>Reduced Manual Work</strong>
+                    <p>
+                        Automation for quicker service delivery
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="benefit">
+
+                <div class="benefit-icon">◉</div>
+
+                <div>
+                    <strong>Transparent Process</strong>
+                    <p>
+                        Track your application status
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="benefit">
+
+                <div class="benefit-icon">♙</div>
+
+                <div>
+                    <strong>Farmer First</strong>
+                    <p>
+                        Designed for simplicity and accessibility
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer>
+
+    <div class="footer-inner">
+
+        <div class="logo">
+            <div class="logo-mark"></div>
+            Agri-RPA
+        </div>
+
+        <p>
+            AI + RPA for smarter agricultural governance
+        </p>
+
+    </div>
+
+</footer>
 
 
 <script>
 
-const API = "http://127.0.0.1:8000";
+    const API_BASE = "http://127.0.0.1:8000";
 
 
-/* =====================================================
-   CREATE APPLICATION
-===================================================== */
+    /* =========================
+       NAVIGATION
+    ========================= */
 
-document
-    .getElementById("applicationForm")
-    .addEventListener("submit", async function(event) {
-
-        event.preventDefault();
-
-        showMessage("Creating application...");
+    function startApplication() {
+        document
+            .getElementById("apply")
+            .scrollIntoView({ behavior: "smooth" });
+    }
 
 
-        const formData = {
+    function scrollToStatus() {
+        document
+            .getElementById("status")
+            .scrollIntoView({ behavior: "smooth" });
+    }
 
-            farmer_name:
-                document.getElementById("farmer_name").value,
 
-            mobile:
-                document.getElementById("mobile").value,
+    /* =========================
+       FILE UI
+    ========================= */
 
-            service_type:
-                document.getElementById("service_type").value,
+    function showFileName(inputId, outputId) {
 
-            survey_number:
-                document.getElementById("survey_number").value,
+        const input = document.getElementById(inputId);
+        const output = document.getElementById(outputId);
 
-            village:
-                document.getElementById("village").value
-        };
+        if (input.files.length > 0) {
+
+            output.innerHTML =
+                "✓ " + input.files[0].name;
+
+        }
+
+    }
+
+
+    /* =========================
+       STEP 1 → STEP 2
+    ========================= */
+
+    function goToDocuments() {
+
+        const farmerName =
+            document.getElementById("farmerName").value.trim();
+
+        const mobile =
+            document.getElementById("mobile").value.trim();
+
+        const surveyNumber =
+            document.getElementById("surveyNumber").value.trim();
+
+        const village =
+            document.getElementById("village").value.trim();
+
+        const service =
+            document.getElementById("serviceType").value;
+
+
+        if (
+            !farmerName ||
+            !mobile ||
+            !surveyNumber ||
+            !village ||
+            !service
+        ) {
+
+            alert("Please complete all farmer details.");
+
+            return;
+
+        }
+
+
+        document.getElementById("detailsStep").style.display = "none";
+
+        document.getElementById("documentStep").style.display = "block";
+
+        document.getElementById("progressBar").style.width = "50%";
+
+        document.getElementById("sideStep1").classList.remove("active");
+
+        document.getElementById("sideStep2").classList.add("active");
+
+    }
+
+
+    /* =========================
+       SUBMIT APPLICATION
+    ========================= */
+
+    async function submitApplication() {
+
+        const identityFile =
+            document.getElementById("identityFile").files[0];
+
+        const landFile =
+            document.getElementById("landFile").files[0];
+
+        const addressFile =
+            document.getElementById("addressFile").files[0];
+
+
+        if (!identityFile || !landFile || !addressFile) {
+
+            alert(
+                "Please upload all three required documents."
+            );
+
+            return;
+
+        }
+
+
+        const farmerName =
+            document.getElementById("farmerName").value.trim();
+
+        const mobile =
+            document.getElementById("mobile").value.trim();
+
+        const surveyNumber =
+            document.getElementById("surveyNumber").value.trim();
+
+        const village =
+            document.getElementById("village").value.trim();
+
+        const serviceType =
+            document.getElementById("serviceType").value;
+
+
+        const submitButton =
+            document.querySelector(".submit-btn");
+
+        submitButton.disabled = true;
+
+        submitButton.innerText =
+            "PROCESSING DOCUMENTS...";
 
 
         try {
 
-            const response = await fetch(
-                `${API}/api/applications`,
-                {
-                    method: "POST",
+            /* CREATE APPLICATION */
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+            const applicationResponse =
+                await fetch(
+                    API_BASE + "/api/applications",
+                    {
+                        method: "POST",
 
-                    body: JSON.stringify(formData)
-                }
-            );
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
 
+                        body: JSON.stringify({
 
-            if (!response.ok) {
-                throw new Error(
-                    "Failed to create application"
+                            farmer_name: farmerName,
+                            mobile: mobile,
+                            service_type: serviceType,
+                            survey_number: surveyNumber,
+                            village: village
+
+                        })
+
+                    }
                 );
+
+
+            if (!applicationResponse.ok) {
+
+                throw new Error(
+                    "Failed to create application."
+                );
+
             }
 
 
             const application =
-                await response.json();
+                await applicationResponse.json();
 
-
-            document
-                .getElementById("applicationId")
-                .textContent =
+            const applicationId =
                 application.application_id;
 
 
-            document
-                .getElementById("applicationResult")
-                .classList.remove("hidden");
-
-
-            showMessage(
-                "Application created. Uploading documents..."
-            );
-
+            /* UPLOAD DOCUMENTS */
 
             await uploadDocument(
-                application.application_id,
+                applicationId,
                 "identity_proof",
-                document.getElementById("identity_proof").files[0]
+                identityFile
             );
 
-
             await uploadDocument(
-                application.application_id,
+                applicationId,
                 "land_record",
-                document.getElementById("land_record").files[0]
+                landFile
             );
-
 
             await uploadDocument(
-                application.application_id,
+                applicationId,
                 "address_proof",
-                document.getElementById("address_proof").files[0]
+                addressFile
             );
 
 
-            showMessage(
-                "Documents uploaded. Running verification..."
+            /* VERIFY */
+
+            submitButton.innerText =
+                "RUNNING AI VERIFICATION...";
+
+
+            const verificationResponse =
+                await fetch(
+                    API_BASE +
+                    "/api/applications/" +
+                    applicationId +
+                    "/verify",
+                    {
+                        method: "POST"
+                    }
+                );
+
+
+            if (!verificationResponse.ok) {
+
+                throw new Error(
+                    "Verification failed."
+                );
+
+            }
+
+
+            const verification =
+                await verificationResponse.json();
+
+
+            showVerificationResult(
+                verification
             );
 
 
-            await verifyApplication(
-                application.application_id
-            );
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(error);
 
-            showMessage(
-                "Error: " + error.message
+            alert(
+                "Something went wrong: " +
+                error.message
             );
+
+            submitButton.disabled = false;
+
+            submitButton.innerText =
+                "SUBMIT & VERIFY →";
+
         }
 
-    });
-
-
-/* =====================================================
-   UPLOAD DOCUMENT
-===================================================== */
-
-async function uploadDocument(
-    applicationId,
-    documentType,
-    file
-) {
-
-    if (!file) {
-        throw new Error(
-            "Missing " + documentType
-        );
     }
 
 
-    const data = new FormData();
+    /* =========================
+       DOCUMENT UPLOAD
+    ========================= */
 
-    data.append(
-        "file",
+    async function uploadDocument(
+        applicationId,
+        documentType,
         file
-    );
+    ) {
 
+        const formData =
+            new FormData();
 
-    const response = await fetch(
-        `${API}/api/applications/${applicationId}/documents?document_type=${documentType}`,
-        {
-            method: "POST",
-            body: data
-        }
-    );
-
-
-    if (!response.ok) {
-
-        const error =
-            await response.text();
-
-        throw new Error(
-            "Document upload failed: "
-            + error
-        );
-    }
-
-
-    return await response.json();
-}
-
-
-/* =====================================================
-   VERIFY APPLICATION
-===================================================== */
-
-async function verifyApplication(
-    applicationId
-) {
-
-    const response = await fetch(
-        `${API}/api/applications/${applicationId}/verify`,
-        {
-            method: "POST"
-        }
-    );
-
-
-    if (!response.ok) {
-
-        const error =
-            await response.text();
-
-        throw new Error(
-            "Verification failed: "
-            + error
-        );
-    }
-
-
-    const result =
-        await response.json();
-
-
-    document
-        .getElementById("score")
-        .textContent =
-        result.verification_score + "%";
-
-
-    document
-        .getElementById("decision")
-        .textContent =
-        result.decision;
-
-
-    document
-        .getElementById("status")
-        .textContent =
-        result.status;
-
-
-    document
-        .getElementById("verificationResult")
-        .classList.remove("hidden");
-
-
-    showMessage(
-        "Verification completed."
-    );
-}
-
-
-/* =====================================================
-   TRACK APPLICATION
-===================================================== */
-
-async function trackApplication() {
-
-    const applicationId =
-        document
-            .getElementById("trackingId")
-            .value
-            .trim();
-
-
-    if (!applicationId) {
-
-        alert(
-            "Enter an application ID."
+        formData.append(
+            "file",
+            file
         );
 
-        return;
-    }
 
+        const response =
+            await fetch(
+                API_BASE +
+                "/api/applications/" +
+                applicationId +
+                "/documents?document_type=" +
+                encodeURIComponent(documentType),
 
-    try {
-
-        const response = await fetch(
-            `${API}/api/status/${applicationId}`
-        );
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
 
 
         if (!response.ok) {
 
+            const error =
+                await response.text();
+
             throw new Error(
-                "Application not found"
+                "Document upload failed: " +
+                error
             );
+
         }
 
 
-        const data =
-            await response.json();
-
-
-        document
-            .getElementById("trackingResult")
-            .innerHTML = `
-
-                <strong>
-                    Application:
-                </strong>
-                ${data.application_id}
-
-                <br><br>
-
-                <strong>
-                    Farmer:
-                </strong>
-                ${data.farmer_name}
-
-                <br><br>
-
-                <strong>
-                    Status:
-                </strong>
-                ${data.status}
-
-                <br><br>
-
-                <strong>
-                    Verification Score:
-                </strong>
-                ${data.verification_score}%
-
-                <br><br>
-
-                <strong>
-                    Government ID:
-                </strong>
-                ${data.government_application_id || "Not assigned yet"}
-
-            `;
-
-
-        document
-            .getElementById("trackingResult")
-            .classList.remove("hidden");
+        return response.json();
 
     }
 
-    catch (error) {
 
-        document
-            .getElementById("trackingResult")
-            .innerHTML =
-            `<strong>${error.message}</strong>`;
+    /* =========================
+       VERIFICATION RESULT
+    ========================= */
 
-        document
-            .getElementById("trackingResult")
-            .classList.remove("hidden");
+    function showVerificationResult(
+        verification
+    ) {
+
+        document.getElementById(
+            "documentStep"
+        ).style.display = "none";
+
+
+        document.getElementById(
+            "resultSection"
+        ).style.display = "block";
+
+
+        document.getElementById(
+            "sideStep2"
+        ).classList.remove("active");
+
+
+        document.getElementById(
+            "sideStep3"
+        ).classList.add("active");
+
+
+        document.getElementById(
+            "progressBar"
+        ).style.width = "75%";
+
+
+        document.getElementById(
+            "score"
+        ).innerText =
+            Math.round(
+                verification.verification_score
+            ) + "%";
+
+
+        document.getElementById(
+            "decision"
+        ).innerText =
+            verification.decision;
+
+
+        if (
+            verification.decision ===
+            "AUTO_PROCESS"
+        ) {
+
+            document.getElementById(
+                "resultTitle"
+            ).innerText =
+                "Application Ready for Automation";
+
+        } else {
+
+            document.getElementById(
+                "resultTitle"
+            ).innerText =
+                "Application Requires Review";
+
+        }
+
+
+        document.getElementById(
+            "sideStep3"
+        ).classList.remove("active");
+
+
+        document.getElementById(
+            "sideStep4"
+        ).classList.add("active");
+
+
+        document.getElementById(
+            "progressBar"
+        ).style.width = "100%";
+
+
+        document.getElementById(
+            "resultSection"
+        ).scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
     }
-}
 
 
-/* =====================================================
-   MESSAGE
-===================================================== */
+    /* =========================
+       STATUS TRACKING
+    ========================= */
 
-function showMessage(text) {
+    async function trackApplication() {
 
-    const element =
-        document.getElementById("message");
+        const applicationId =
+            document
+                .getElementById(
+                    "statusApplicationId"
+                )
+                .value
+                .trim();
 
-    element.textContent = text;
 
-    element.classList.remove("hidden");
-}
+        if (!applicationId) {
+
+            alert(
+                "Enter an application ID."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    API_BASE +
+                    "/api/status/" +
+                    encodeURIComponent(
+                        applicationId
+                    )
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Application not found."
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            document.getElementById(
+                "statusResult"
+            ).style.display = "block";
+
+
+            document.getElementById(
+                "trackedFarmer"
+            ).innerText =
+                data.farmer_name;
+
+
+            document.getElementById(
+                "trackedStatus"
+            ).innerText =
+                data.status;
+
+
+            document.getElementById(
+                "trackedId"
+            ).innerText =
+                data.application_id;
+
+
+            document.getElementById(
+                "trackedService"
+            ).innerText =
+                data.service;
+
+
+            document.getElementById(
+                "trackedScore"
+            ).innerText =
+                data.verification_score + "%";
+
+
+            document.getElementById(
+                "trackedGovId"
+            ).innerText =
+                data.government_application_id ||
+                "Not submitted yet";
+
+
+        } catch (error) {
+
+            alert(error.message);
+
+        }
+
+    }
 
 </script>
 
 </body>
-
 </html>

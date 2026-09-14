@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agri-RPA | Officer Dashboard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f1e8;
+            color: #1f2b20;
+        }
+
+        header {
+            background: #285b2b;
+            color: white;
+            padding: 22px 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            opacity: .8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 35px auto;
+            padding: 0 25px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns:
+                repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow:
+                0 3px 12px rgba(0,0,0,.06);
+        }
+
+        .stat-label {
+            color: #777;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 3px 12px rgba(0,0,0,.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .review {
+            background: #fff1cf;
+            color: #815d00;
+        }
+
+        .approved {
+            background: #e2f1e2;
+            color: #27612d;
+        }
+
+        .rejected {
+            background: #f8dddd;
+            color: #8a2626;
+        }
+
+        button {
+            border: none;
+            border-radius: 7px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .review-button {
+            background: #285b2b;
+            color: white;
+        }
+
+        .review-button:hover {
+            background: #1d4721;
+        }
+
+        .approve-button {
+            background: #285b2b;
+            color: white;
+        }
+
+        .reject-button {
+            background: #b33b3b;
+            color: white;
+        }
+
+        .secondary-button {
+            background: #ddd;
+            color: #333;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .review-panel {
+            margin-top: 25px;
+            border-top: 1px solid #ddd;
+            padding-top: 25px;
+        }
+
+        .application-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .field {
+            background: #f7f7f5;
+            padding: 14px;
+            border-radius: 8px;
+        }
+
+        .field-label {
+            color: #777;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .field-value {
+            font-weight: bold;
+        }
+
+        .documents {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .document {
+            background: #f7f7f5;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .document strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .issues {
+            background: #fff4f4;
+            border: 1px solid #e5bcbc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .issues h3 {
+            margin-top: 0;
+            color: #8a2626;
+        }
+
+        .loading {
+            color: #777;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            background: #e5f2e5;
+        }
+
+        @media (max-width: 800px) {
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .application-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h1>
+        Agri-RPA
+    </h1>
+
+    <p>
+        Officer Dashboard · Human Review & Automation
+    </p>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Total Applications
+            </div>
+
+            <div
+                id="totalApplications"
+                class="stat-value"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Ready for Automation
+            </div>
+
+            <div
+                id="readyApplications"
+                class="stat-value"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Human Review
+            </div>
+
+            <div
+                id="reviewApplications"
+                class="stat-value"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                RPA Processing
+            </div>
+
+            <div
+                id="rpaApplications"
+                class="stat-value"
+            >
+                -
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- REVIEW QUEUE -->
+
+    <div class="card">
+
+        <h2>
+            Human Review Queue
+        </h2>
+
+        <p>
+            Applications requiring officer intervention.
+        </p>
+
+        <button
+            class="secondary-button"
+            onclick="loadQueue()"
+        >
+            Refresh Queue
+        </button>
+
+
+        <div style="overflow-x:auto; margin-top:20px;">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Application
+                        </th>
+
+                        <th>
+                            Farmer
+                        </th>
+
+                        <th>
+                            Service
+                        </th>
+
+                        <th>
+                            Score
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="queueBody">
+
+                    <tr>
+
+                        <td colspan="6">
+                            Loading...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- REVIEW PANEL -->
+
+        <div
+            id="reviewPanel"
+            class="review-panel hidden"
+        >
+
+            <h2>
+                Application Review
+            </h2>
+
+
+            <div
+                id="applicationDetails"
+                class="application-grid"
+            ></div>
+
+
+            <div
+                id="issuesContainer"
+                class="issues hidden"
+            >
+
+                <h3>
+                    Verification Issues
+                </h3>
+
+                <ul id="issuesList"></ul>
+
+            </div>
+
+
+            <h3 style="margin-top:30px;">
+                Documents
+            </h3>
+
+            <div
+                id="documentsContainer"
+                class="documents"
+            ></div>
+
+
+            <div style="margin-top:25px;">
+
+                <button
+                    class="approve-button"
+                    onclick="approveCurrentApplication()"
+                >
+                    Approve for RPA
+                </button>
+
+
+                <button
+                    class="reject-button"
+                    onclick="rejectCurrentApplication()"
+                >
+                    Reject Application
+                </button>
+
+
+                <button
+                    class="secondary-button"
+                    onclick="closeReview()"
+                >
+                    Close Review
+                </button>
+
+            </div>
+
+
+            <div id="reviewMessage"></div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+const API_URL =
+    "http://127.0.0.1:8000";
+
+
+let currentApplicationId = null;
+
+
+/*
+    LOAD STATISTICS
+*/
+
+async function loadStatistics() {
+
+    const response =
+        await fetch(
+            `${API_URL}/api/applications`
+        );
+
+    const applications =
+        await response.json();
+
+
+    document.getElementById(
+        "totalApplications"
+    ).textContent =
+        applications.length;
+
+
+    document.getElementById(
+        "readyApplications"
+    ).textContent =
+        applications.filter(
+            app =>
+                app.status === "AUTO_APPROVED"
+        ).length;
+
+
+    document.getElementById(
+        "reviewApplications"
+    ).textContent =
+        applications.filter(
+            app =>
+                app.status === "HUMAN_REVIEW"
+        ).length;
+
+
+    document.getElementById(
+        "rpaApplications"
+    ).textContent =
+        applications.filter(
+            app =>
+                app.status === "RPA_PROCESSING"
+        ).length;
+
+}
+
+
+/*
+    LOAD REVIEW QUEUE
+*/
+
+async function loadQueue() {
+
+    try {
+
+        await loadStatistics();
+
+
+        const response =
+            await fetch(
+                `${API_URL}/api/review/queue`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        const body =
+            document.getElementById(
+                "queueBody"
+            );
+
+
+        body.innerHTML = "";
+
+
+        if (data.applications.length === 0) {
+
+            body.innerHTML =
+                `
+                <tr>
+                    <td colspan="6">
+                        No applications require review.
+                    </td>
+                </tr>
+                `;
+
+            return;
+
+        }
+
+
+        data.applications.forEach(
+            application => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML =
+                    `
+                    <td>
+                        <strong>
+                            ${application.application_id}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${application.farmer_name}
+                    </td>
+
+                    <td>
+                        ${application.service_type}
+                    </td>
+
+                    <td>
+                        ${application.verification_score}%
+                    </td>
+
+                    <td>
+                        <span class="badge review">
+                            HUMAN_REVIEW
+                        </span>
+                    </td>
+
+                    <td>
+                        <button
+                            class="review-button"
+                            onclick="reviewApplication('${application.application_id}')"
+                        >
+                            Review
+                        </button>
+                    </td>
+                    `;
+
+
+                body.appendChild(row);
+
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById(
+            "queueBody"
+        ).innerHTML =
+            `
+            <tr>
+                <td colspan="6">
+                    Failed to load review queue.
+                </td>
+            </tr>
+            `;
+
+    }
+
+}
+
+
+/*
+    REVIEW APPLICATION
+*/
+
+async function reviewApplication(
+    applicationId
+) {
+
+    currentApplicationId =
+        applicationId;
+
+
+    const response =
+        await fetch(
+            `${API_URL}/api/review/${applicationId}`
+        );
+
+
+    const data =
+        await response.json();
+
+
+    const application =
+        data.application;
+
+
+    document.getElementById(
+        "reviewPanel"
+    ).classList.remove("hidden");
+
+
+    document.getElementById(
+        "applicationDetails"
+    ).innerHTML =
+        `
+        <div class="field">
+
+            <div class="field-label">
+                Application ID
+            </div>
+
+            <div class="field-value">
+                ${application.application_id}
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Farmer Name
+            </div>
+
+            <div class="field-value">
+                ${application.farmer_name}
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Mobile
+            </div>
+
+            <div class="field-value">
+                ${application.mobile}
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Service
+            </div>
+
+            <div class="field-value">
+                ${application.service_type}
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Survey Number
+            </div>
+
+            <div class="field-value">
+                ${application.survey_number}
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Village
+            </div>
+
+            <div class="field-value">
+                ${application.village}
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Verification Score
+            </div>
+
+            <div class="field-value">
+                ${application.verification_score}%
+            </div>
+
+        </div>
+
+
+        <div class="field">
+
+            <div class="field-label">
+                Decision
+            </div>
+
+            <div class="field-value">
+                ${application.decision}
+            </div>
+
+        </div>
+        `;
+
+
+    /*
+        Display document information
+    */
+
+    const documentsContainer =
+        document.getElementById(
+            "documentsContainer"
+        );
+
+
+    documentsContainer.innerHTML = "";
+
+
+    data.documents.forEach(
+        document => {
+
+            const extracted =
+                document.extracted_data || "{}";
+
+
+            let extractedData;
+
+
+            try {
+
+                extractedData =
+                    JSON.parse(extracted);
+
+            } catch {
+
+                extractedData = {};
+
+            }
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "document";
+
+
+            item.innerHTML =
+                `
+                <strong>
+                    ${document.document_type}
+                </strong>
+
+                <div>
+                    File: ${document.filename}
+                </div>
+
+                <div>
+                    OCR Confidence:
+                    ${document.ocr_confidence}
+                </div>
+
+                <div style="margin-top:8px;">
+                    Extracted Name:
+                    ${extractedData.name || "Not found"}
+                </div>
+
+                <div>
+                    Survey:
+                    ${extractedData.survey_number || "Not found"}
+                </div>
+
+                <div>
+                    Village:
+                    ${extractedData.village || "Not found"}
+                </div>
+
+                <div style="margin-top:8px;color:#777;">
+                    Verification:
+                    ${document.verification_status}
+                </div>
+                `;
+
+
+            documentsContainer.appendChild(
+                item
+            );
+
+        }
+    );
+
+
+    /*
+        Show issues if available
+
+        The current review API doesn't expose
+        validation issues directly, so we show
+        the score/decision and document data here.
+    */
+
+    document.getElementById(
+        "issuesContainer"
+    ).classList.add("hidden");
+
+}
+
+
+/*
+    APPROVE
+*/
+
+async function approveCurrentApplication() {
+
+    if (!currentApplicationId) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `${API_URL}/api/review/${currentApplicationId}/approve`,
+            {
+                method: "POST"
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        alert(
+            result.detail ||
+            "Approval failed."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "reviewMessage"
+    ).innerHTML =
+        `
+        <div class="message">
+
+            Application
+            <strong>
+                ${currentApplicationId}
+            </strong>
+            approved for RPA processing.
+
+            <br><br>
+
+            Status:
+            <strong>
+                AUTO_APPROVED
+            </strong>
+
+        </div>
+        `;
+
+
+    await loadQueue();
+
+}
+
+
+/*
+    REJECT
+*/
+
+async function rejectCurrentApplication() {
+
+    if (!currentApplicationId) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to reject this application?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `${API_URL}/api/review/${currentApplicationId}/reject`,
+            {
+                method: "POST"
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        alert(
+            result.detail ||
+            "Rejection failed."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "reviewMessage"
+    ).innerHTML =
+        `
+        <div class="message">
+
+            Application
+            <strong>
+                ${currentApplicationId}
+            </strong>
+            has been rejected.
+
+        </div>
+        `;
+
+
+    await loadQueue();
+
+}
+
+
+/*
+    CLOSE REVIEW
+*/
+
+function closeReview() {
+
+    currentApplicationId =
+        null;
+
+    document.getElementById(
+        "reviewPanel"
+    ).classList.add("hidden");
+
+}
+
+
+/*
+    INITIAL LOAD
+*/
+
+loadQueue();
+
+
+</script>
+
+
+</body>
+
+</html>
