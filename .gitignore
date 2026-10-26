@@ -1,21 +1,103 @@
+
+# ==============================
 # Python
+# ==============================
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+wheels/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# ==============================
+# Virtual environments
+# ==============================
 .venv/
+venv/
+env/
+ENV/
 
-# Database
-*.db
-
-# Uploaded documents
-backend/uploads/
-
-# Environment variables
+# ==============================
+# Secrets and environment files
+# ==============================
 .env
+.env.*
+!.env.example
+!.env.template
+secrets/
+*.pem
+*.key
+credentials.json
+service-account*.json
 
-# Node
-node_modules/
-npm-debug.log*
+# ==============================
+# Databases and private records
+# ==============================
+*.db
+*.sqlite
+*.sqlite3
+instance/
+private_data/
+private_documents/
+uploads/
+data/private/
 
-# OS
+# ==============================
+# Logs and temporary files
+# ==============================
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ==============================
+# Testing and coverage
+# ==============================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# ==============================
+# Playwright / browser automation
+# ==============================
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
+# ==============================
+# Agri-RPA execution artifacts
+# ==============================
+rpa_evidence/
+downloaded_documents/
+screenshots/
+artifacts/
+
+# ==============================
+# IDEs and editors
+# ==============================
+.vscode/
+.idea/
+*.code-workspace
+
+# ==============================
+# Operating system
+# ==============================
+$RECYCLE.BIN/

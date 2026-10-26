@@ -1922,46 +1922,38 @@
         documentType,
         file
     ) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("document_type", documentType);
 
-        const formData =
-            new FormData();
-
-        formData.append(
-            "file",
-            file
+        const response = await fetch(
+            API_BASE +
+            "/api/applications/" +
+            encodeURIComponent(applicationId) +
+            "/documents",
+            {
+                method: "POST",
+                body: formData
+            }
         );
 
+        const responseText = await response.text();
+        let result;
 
-        const response =
-            await fetch(
-                API_BASE +
-                "/api/applications/" +
-                applicationId +
-                "/documents?document_type=" +
-                encodeURIComponent(documentType),
-
-                {
-                    method: "POST",
-                    body: formData
-                }
-            );
-
-
-        if (!response.ok) {
-
-            const error =
-                await response.text();
-
-            throw new Error(
-                "Document upload failed: " +
-                error
-            );
-
+        try {
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch (error) {
+            result = { detail: responseText };
         }
 
+        if (!response.ok) {
+            const detail = typeof result.detail === "string"
+                ? result.detail
+                : JSON.stringify(result.detail || result);
+            throw new Error("Document upload failed: " + detail);
+        }
 
-        return response.json();
-
+        return result;
     }
 
 

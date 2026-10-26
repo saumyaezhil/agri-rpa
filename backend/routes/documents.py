@@ -1,468 +1,212 @@
-import os
+
 import json
-import shutil
+import logging
+import re
+import uuid
+from pathlib import Path
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    UploadFile,
-    File,
-    HTTPException
-)
-
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..models import Application, Document
+from ..services.ocr import extract_text
+from ..services.document_classifier import classify_document
+from ..services.extractor import extract_fields
 
-from ..models import (
-    Application,
-    Document
-)
+router = APIRouter(prefix="/api/applications", tags=["Documents"])
+logger = logging.getLogger(__name__)
 
-from ..services.ocr import (
-    extract_text
-)
-
-from ..services.document_classifier import (
-    classify_document
-)
-
-from ..services.extractor import (
-    extract_fields
-)
+UPLOAD_DIR = Path("backend/uploads")
+MAX_FILE_SIZE = 10 * 1024 * 1024
+ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg", ".tif", ".tiff"}
 
 
-router = APIRouter(
-    prefix="/api/applications",
-    tags=["Documents"]
-)
+def safe_filename(filename: str) -> str:
+    name = Path(filename or "upload").name
+    name = re.sub(r"[^A-Za-z0-9._-]", "_", name)
+    return name or "upload"
 
 
-UPLOAD_DIR = "backend/uploads"
-
-
-ALLOWED_DOCUMENT_TYPES = {
-    "identity_proof",
-    "land_record",
-    "address_proof"
-}
-
-
-ALLOWED_EXTENSIONS = {
-    ".pdf",
-    ".png",
-    ".jpg",
-    ".jpeg"
-}
-
-
-os.makedirs(
-    UPLOAD_DIR,
-    exist_ok=True
-)
-
-
-@router.post(
-    "/{application_id}/documents"
-)
-def upload_document(
-    application_id: str,
-    document_type: str,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
-
-    # --------------------------------------------------
-    # 1. Check application
-    # --------------------------------------------------
-
+def find_application(db: Session, application_id: str):
     application = (
         db.query(Application)
-        .filter(
-            Application.application_id
-            == application_id
-        )
+        .filter(Application.application_id == application_id)
         .first()
     )
-
-    if not application:
-        raise HTTPException(
-            status_code=404,
-            detail="Application not found"
-        )
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+    return application
 
 
-    # --------------------------------------------------
-    # 2. Validate document type
-    # --------------------------------------------------
+@router.post("/{application_id}/documents")
+async def upload_document(
+    application_id: str,
+    file: UploadFile = File(...),
+    document_type: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    find_application(db, application_id)
 
-    if document_type not in ALLOWED_DOCUMENT_TYPES:
-
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Invalid document type. "
-                "Use identity_proof, "
-                "land_record, or "
-                "address_proof."
-            )
-        )
-
-
-    # --------------------------------------------------
-    # 3. Validate file extension
-    # --------------------------------------------------
-
-    extension = (
-        os.path.splitext(
-            file.filename
-        )[1]
-        .lower()
-    )
+    original_name = safe_filename(file.filename)
+    extension = Path(original_name).suffix.lower()
+    expected_type = document_type.strip().lower()
 
     if extension not in ALLOWED_EXTENSIONS:
-
+        await file.close()
         raise HTTPException(
             status_code=400,
-            detail=(
-                "Only PDF, PNG, JPG and "
-                "JPEG files are allowed."
-            )
+            detail="Unsupported file type. Upload a PDF or image.",
         )
 
+    if not expected_type:
+        await file.close()
+        raise HTTPException(status_code=400, detail="Document type is required")
 
-    # --------------------------------------------------
-    # 4. Create application upload directory
-    # --------------------------------------------------
+    application_dir = UPLOAD_DIR / application_id
+    application_dir.mkdir(parents=True, exist_ok=True)
 
-    application_dir = os.path.join(
-        UPLOAD_DIR,
-        application_id
-    )
-
-    os.makedirs(
-        application_dir,
-        exist_ok=True
-    )
-
-
-    # --------------------------------------------------
-    # 5. Save uploaded document
-    # --------------------------------------------------
-
-    filepath = os.path.join(
-        application_dir,
-        file.filename
-    )
+    # Unique names avoid collisions with previous uploads.
+    filepath = application_dir / f"{uuid.uuid4().hex}_{original_name}"
 
     try:
-
-        with open(
-            filepath,
-            "wb"
-        ) as buffer:
-
-            shutil.copyfileobj(
-                file.file,
-                buffer
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty")
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=413,
+                detail="File exceeds the 10 MB limit",
             )
 
-    except Exception as error:
-
-        raise HTTPException(
-            status_code=500,
-            detail=(
-                "Failed to save uploaded file: "
-                + str(error)
-            )
-        )
-
-
-    # --------------------------------------------------
-    # 6. Run OCR
-    # --------------------------------------------------
+        with filepath.open("wb") as output:
+            output.write(content)
+    finally:
+        await file.close()
 
     try:
+        # Actual signature: extract_text(filepath) -> (text, confidence)
+        ocr_text, ocr_confidence = extract_text(str(filepath))
+        ocr_text = str(ocr_text or "")
+        ocr_confidence = float(ocr_confidence or 0.0)
 
-        ocr_result = extract_text(
-            filepath
-        )
+        # Actual signature: classify_document(text, filename)
+        detected_type = str(
+            classify_document(ocr_text, original_name) or "unknown"
+        ).strip().lower()
 
-        # The OCR service returns:
-        #
-        # (
-        #     extracted_text,
-        #     confidence
-        # )
-        #
-        # Explicitly unpack it here.
+        # Actual signature: extract_fields(text, document_type)
+        extracted_data = extract_fields(ocr_text, detected_type) or {}
 
-        if (
-            isinstance(
-                ocr_result,
-                tuple
-            )
-            and len(ocr_result) == 2
-        ):
-
-            ocr_text = ocr_result[0]
-            ocr_confidence = ocr_result[1]
-
+        if detected_type == "unknown":
+            verification_status = "REVIEW"
+        elif detected_type != expected_type:
+            verification_status = "TYPE_MISMATCH"
+        elif ocr_confidence < 0.50:
+            verification_status = "LOW_OCR_CONFIDENCE"
         else:
+            verification_status = "PROCESSED"
 
-            # Defensive fallback in case
-            # an older OCR implementation
-            # returns only text.
+        document = Document(
+            application_id=application_id,
+            filename=original_name,
+            filepath=str(filepath),
+            document_type=expected_type,
+            ocr_text=ocr_text,
+            ocr_confidence=ocr_confidence,
+            extracted_data=json.dumps(extracted_data),
+            verification_status=verification_status,
+        )
 
-            ocr_text = str(
-                ocr_result
-            )
+        db.add(document)
+        db.commit()
+        db.refresh(document)
 
-            ocr_confidence = 0.0
-
+        return {
+            "message": "Document uploaded and processed",
+            "application_id": application_id,
+            "document_id": document.id,
+            "filename": original_name,
+            "document_type": expected_type,
+            "detected_type": detected_type,
+            "verification_status": verification_status,
+            "ocr_confidence": ocr_confidence,
+            "extracted_data": extracted_data,
+        }
 
     except Exception as error:
-
-        if os.path.exists(filepath):
-
-            os.remove(filepath)
-
+        db.rollback()
+        # Keep the file for diagnosis instead of risking a Windows
+        # file-lock cleanup error that masks the original exception.
+        logger.exception(
+            "OCR/document processing failed for application %s",
+            application_id,
+        )
         raise HTTPException(
             status_code=500,
-            detail=(
-                "OCR processing failed: "
-                + str(error)
-            )
-        )
+            detail=f"OCR processing failed: {error}",
+        ) from error
 
 
-    # --------------------------------------------------
-    # 7. Make absolutely sure classifier
-    #    receives text, not a tuple
-    # --------------------------------------------------
-
-    if not isinstance(
-        ocr_text,
-        str
-    ):
-
-        ocr_text = str(
-            ocr_text
-        )
-
-
-    # --------------------------------------------------
-    # 8. Classify document
-    # --------------------------------------------------
-
-    detected_type = classify_document(
-        ocr_text,
-        file.filename
-    )
-
-
-    # --------------------------------------------------
-    # 9. Determine verification status
-    # --------------------------------------------------
-
-    if detected_type == "unknown":
-
-        verification_status = (
-            "CLASSIFICATION_REVIEW"
-        )
-
-    elif detected_type != document_type:
-
-        verification_status = (
-            "TYPE_MISMATCH"
-        )
-
-    elif ocr_confidence < 0.50:
-
-        verification_status = (
-            "LOW_OCR_CONFIDENCE"
-        )
-
-    else:
-
-        verification_status = (
-            "OCR_COMPLETED"
-        )
-
-
-    # --------------------------------------------------
-    # 10. Extract fields
-    # --------------------------------------------------
-
-    extracted_data = extract_fields(
-        ocr_text,
-        detected_type
-    )
-
-
-    # --------------------------------------------------
-    # 11. Store document in database
-    # --------------------------------------------------
-
-    document = Document(
-
-        application_id=application_id,
-
-        document_type=document_type,
-
-        filename=file.filename,
-
-        filepath=filepath,
-
-        ocr_text=ocr_text,
-
-        ocr_confidence=ocr_confidence,
-
-        extracted_data=json.dumps(
-            extracted_data
-        ),
-
-        verification_status=(
-            verification_status
-        )
-    )
-
-
-    db.add(
-        document
-    )
-
-    db.commit()
-
-    db.refresh(
-        document
-    )
-
-
-    # --------------------------------------------------
-    # 12. Return processing result
-    # --------------------------------------------------
-
-    return {
-
-        "message":
-            "Document uploaded and processed",
-
-        "application_id":
-            application_id,
-
-        "document_id":
-            document.id,
-
-        "document_type":
-            document_type,
-
-        "detected_document_type":
-            detected_type,
-
-        "filename":
-            file.filename,
-
-        "ocr_confidence":
-            round(
-                ocr_confidence,
-                3
-            ),
-
-        "verification_status":
-            verification_status,
-
-        "extracted_data":
-            extracted_data,
-
-        "ocr_text":
-            ocr_text
-    }
-
-
-# ======================================================
-# GET DOCUMENTS
-# ======================================================
-
-@router.get(
-    "/{application_id}/documents"
-)
-def get_documents(
+@router.get("/{application_id}/documents")
+def get_application_documents(
     application_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-
-    application = (
-        db.query(Application)
-        .filter(
-            Application.application_id
-            == application_id
-        )
-        .first()
-    )
-
-    if not application:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Application not found"
-        )
-
+    find_application(db, application_id)
 
     documents = (
         db.query(Document)
-        .filter(
-            Document.application_id
-            == application_id
-        )
+        .filter(Document.application_id == application_id)
         .all()
     )
 
-
-    result = []
-
-
+    results = []
     for document in documents:
-
         try:
-
-            extracted_data = (
-
-                json.loads(
-                    document.extracted_data
-                )
-
-                if document.extracted_data
-
-                else {}
-
-            )
-
-        except Exception:
-
+            extracted_data = json.loads(document.extracted_data or "{}")
+        except (ValueError, TypeError):
             extracted_data = {}
 
-
-        result.append({
-
-            "document_id":
-                document.id,
-
-            "document_type":
-                document.document_type,
-
-            "filename":
-                document.filename,
-
-            "verification_status":
-                document.verification_status,
-
-            "ocr_confidence":
-                document.ocr_confidence,
-
-            "extracted_data":
-                extracted_data
+        results.append({
+            "document_id": document.id,
+            "filename": document.filename,
+            "document_type": document.document_type,
+            "verification_status": document.verification_status,
+            "ocr_confidence": document.ocr_confidence,
+            "extracted_data": extracted_data,
         })
 
+    return results
 
-    return result
+
+@router.get("/{application_id}/documents/{document_id}/download")
+def download_document(
+    application_id: str,
+    document_id: int,
+    db: Session = Depends(get_db),
+):
+    find_application(db, application_id)
+
+    document = (
+        db.query(Document)
+        .filter(
+            Document.id == document_id,
+            Document.application_id == application_id,
+        )
+        .first()
+    )
+
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    filepath = Path(document.filepath)
+    if not filepath.is_file():
+        raise HTTPException(status_code=404, detail="Document file not found")
+
+    return FileResponse(
+        path=str(filepath),
+        filename=document.filename,
+        media_type="application/octet-stream",
+    )
